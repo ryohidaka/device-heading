@@ -8,13 +8,21 @@ TypeScript library to get and track device heading
 bun add device-heading
 ```
 
-## Usage
+## 🚀 Usage
+
+### Initialize
 
 ```typescript
-import { greet } from "device-heading";
+import { DeviceHeading } from "device-heading";
 
-console.log(greet("World")); // Hello, World!
+const compass = new DeviceHeading();
 ```
+
+## 🧠 API Reference
+
+### `new DeviceHeading()`
+
+Creates a new compass instance.
 
 ## Contributing
 
