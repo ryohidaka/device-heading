@@ -65,4 +65,14 @@ describe("resolveHeading", () => {
 			).toThrow(HeadingUnavailableError);
 		});
 	});
+
+	describe("iOS (webkitCompassHeading)", () => {
+		it("returns webkitCompassHeading when present", () => {
+			expect(resolveHeading(makeEvent({ webkitCompassHeading: 123.4 }))).toBe(123.4);
+		});
+
+		it("returns 0 when webkitCompassHeading is 0", () => {
+			expect(resolveHeading(makeEvent({ webkitCompassHeading: 0 }))).toBe(0);
+		});
+	});
 });

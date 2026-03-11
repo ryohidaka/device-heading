@@ -118,6 +118,12 @@ describe("DeviceHeading", () => {
 				expect(await new DeviceHeading().hasIOSPermission()).toBe(false);
 			});
 		});
+
+		describe("requestIOSPermission()", () => {
+			it("resolves to true on non-iOS", async () => {
+				expect(await new DeviceHeading().requestIOSPermission()).toBe(true);
+			});
+		});
 	});
 
 	describe("Unsupported", () => {
@@ -142,6 +148,14 @@ describe("DeviceHeading", () => {
 		describe("hasIOSPermission()", () => {
 			it("rejects when unsupported", async () => {
 				await expect(new DeviceHeading().hasIOSPermission()).rejects.toThrow(
+					UnsupportedEnvironmentError,
+				);
+			});
+		});
+
+		describe("requestIOSPermission()", () => {
+			it("throws when unsupported", () => {
+				expect(() => new DeviceHeading().requestIOSPermission()).toThrow(
 					UnsupportedEnvironmentError,
 				);
 			});

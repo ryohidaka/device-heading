@@ -3,6 +3,7 @@
  */
 export enum OrientationEventType {
 	Absolute = "deviceorientationabsolute",
+	Standard = "deviceorientation",
 }
 
 /**
@@ -10,7 +11,8 @@ export enum OrientationEventType {
  */
 export function isOrientationSupported(): boolean {
 	return (
-		typeof DeviceOrientationEvent !== "undefined" && "ondeviceorientationabsolute" in globalThis
+		typeof DeviceOrientationEvent !== "undefined" &&
+		("ondeviceorientationabsolute" in globalThis || "ondeviceorientation" in globalThis)
 	);
 }
 
@@ -18,5 +20,7 @@ export function isOrientationSupported(): boolean {
  * Returns the most precise orientation event type available.
  */
 export function resolveEventType(): OrientationEventType {
-	return OrientationEventType.Absolute;
+	return "ondeviceorientationabsolute" in globalThis
+		? OrientationEventType.Absolute
+		: OrientationEventType.Standard;
 }

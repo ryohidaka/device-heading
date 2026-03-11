@@ -1,5 +1,9 @@
 import { HeadingUnavailableError } from ".";
 
+interface WebKitDeviceOrientationEvent extends DeviceOrientationEvent {
+	webkitCompassHeading?: number;
+}
+
 /**
  * Converts degrees to radians.
  */
@@ -54,12 +58,17 @@ function computeHeadingFromAngles(event: DeviceOrientationEvent): number {
 
 /**
  * Returns compass heading (0–360°) from a DeviceOrientationEvent.
+ * Uses `webkitCompassHeading` on iOS Safari; falls back to absolute angles elsewhere.
  * @param event - DeviceOrientationEvent
  * @param precision - Decimal places to round to. If omitted, no rounding is applied.
  * @throws {HeadingUnavailableError}
  */
-export function resolveHeading(event: DeviceOrientationEvent, precision?: number): number {
+export function resolveHeading(event: WebKitDeviceOrientationEvent, precision?: number): number {
 	if (!event) throw new HeadingUnavailableError();
+
+	if (typeof event.webkitCompassHeading === "number") {
+		return applyPrecision(event.webkitCompassHeading, precision);
+	}
 
 	return applyPrecision(computeHeadingFromAngles(event), precision);
 }

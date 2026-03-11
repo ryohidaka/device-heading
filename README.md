@@ -2,6 +2,15 @@
 
 TypeScript library to get and track device heading
 
+> [!NOTE]
+> Requires HTTPS or localhost to access motion sensors.
+>
+> On iOS Safari, `requestIOSPermission()` must be called inside a user gesture
+> handler (e.g., a button click).
+>
+> Heading accuracy depends on the device's magnetometer and surrounding
+> environment.
+
 ## Installation
 
 ```bash
@@ -77,6 +86,27 @@ if (!(await compass.hasIOSPermission())) {
 }
 ```
 
+### Request iOS permission
+
+On iOS Safari, the user must explicitly grant permission to access motion data.
+Call this inside a user gesture handler (e.g., a button click).
+
+```typescript
+import { DeviceHeading } from "device-heading";
+
+const compass = new DeviceHeading();
+
+button.addEventListener("click", async () => {
+	const granted = await compass.requestIOSPermission();
+
+	if (granted) {
+		console.log("Permission granted");
+	} else {
+		console.log("Permission denied");
+	}
+});
+```
+
 ## 🧠 API Reference
 
 ### `new DeviceHeading(options?)`
@@ -107,6 +137,11 @@ Stops watching for heading updates.
 
 Returns `true` if the `DeviceOrientationEvent` permission is granted on iOS 13+.
 On non-iOS devices, always returns `true`.
+
+### `requestIOSPermission(): Promise<boolean>`
+
+Requests motion permission on iOS 13+. Must be called inside a user gesture handler (e.g., a button click).
+On non-iOS devices, returns `true` immediately.
 
 ## Contributing
 

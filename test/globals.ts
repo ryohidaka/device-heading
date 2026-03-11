@@ -3,7 +3,10 @@ const g = globalThis as any;
 
 const listeners = new Map<string, Set<EventListener>>();
 
-export function emit(type: string, event: Partial<DeviceOrientationEvent>): void {
+export function emit(
+	type: string,
+	event: Partial<DeviceOrientationEvent> & { webkitCompassHeading?: number },
+): void {
 	listeners.get(type)?.forEach((l) => l(event as unknown as Event));
 }
 
@@ -17,15 +20,20 @@ let _removeEventListener: typeof globalThis.removeEventListener;
 /**
  * Patch globalThis to simulate a browser that supports DeviceOrientationEvent.
  */
-export function setup(): void {
+export function setup(opts: { absolute?: boolean } = { absolute: true }): void {
 	listeners.clear();
 	_addEventListener = globalThis.addEventListener;
 	_removeEventListener = globalThis.removeEventListener;
 
 	g.DeviceOrientationEvent = {};
 	g.window = globalThis;
-	g.ondeviceorientationabsolute = null;
-	delete g.ondeviceorientation;
+	if (opts.absolute) {
+		g.ondeviceorientationabsolute = null;
+		delete g.ondeviceorientation;
+	} else {
+		g.ondeviceorientation = null;
+		delete g.ondeviceorientationabsolute;
+	}
 
 	g.addEventListener = (type: string, listener: EventListener) => {
 		if (!listeners.has(type)) listeners.set(type, new Set());
@@ -43,11 +51,16 @@ export function teardown(): void {
 	delete g.DeviceOrientationEvent;
 	delete g.window;
 	delete g.ondeviceorientationabsolute;
+	delete g.ondeviceorientation;
 
 	globalThis.addEventListener = _addEventListener;
 	globalThis.removeEventListener = _removeEventListener;
 }
 
-export function makeEvent(overrides: Partial<DeviceOrientationEvent> = {}): DeviceOrientationEvent {
-	return { alpha: 0, beta: 0, gamma: 0, absolute: true, ...overrides } as DeviceOrientationEvent;
+export function makeEvent(
+	overrides: Partial<DeviceOrientationEvent> & { webkitCompassHeading?: number } = {},
+): DeviceOrientationEvent & { webkitCompassHeading?: number } {
+	return { alpha: 0, beta: 0, gamma: 0, absolute: true, ...overrides } as DeviceOrientationEvent & {
+		webkitCompassHeading?: number;
+	};
 }

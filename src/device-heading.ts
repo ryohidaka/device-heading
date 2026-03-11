@@ -2,6 +2,7 @@ import {
 	isIOSPermissionRequired,
 	isOrientationSupported,
 	OrientationEventType,
+	requestOrientationPermission,
 	resolveEventType,
 	resolveHeading,
 	UnsupportedEnvironmentError,
@@ -146,5 +147,28 @@ export class DeviceHeading {
 		} catch {
 			return false;
 		}
+	}
+
+	/**
+	 * Requests permission to use DeviceOrientationEvent on iOS 13+.
+	 * Must be called from a user gesture (e.g. button tap).
+	 * On non-iOS devices, resolves to `true` immediately.
+	 *
+	 * @returns `true` if permission is granted
+	 * @throws {UnsupportedEnvironmentError} if the API is unavailable
+	 * @throws {PermissionDeniedError} if the user denies permission
+	 * @throws {UnknownPermissionStateError} if the permission state is unexpected
+	 * @throws {PermissionRequestFailedError} if the request itself fails
+	 * @example
+	 * ```ts
+	 * button.addEventListener("click", async () => {
+	 *   await compass.requestIOSPermission();
+	 *   const heading = await compass.once();
+	 * });
+	 * ```
+	 */
+	requestIOSPermission(): Promise<boolean> {
+		if (!this.supported) throw new UnsupportedEnvironmentError();
+		return requestOrientationPermission();
 	}
 }

@@ -22,6 +22,11 @@ describe("isOrientationSupported", () => {
 		expect(isOrientationSupported()).toBe(false);
 		delete g.DeviceOrientationEvent;
 	});
+
+	it("returns true when ondeviceorientation is present", () => {
+		setup({ absolute: false });
+		expect(isOrientationSupported()).toBe(true);
+	});
 });
 
 describe("resolveEventType", () => {
@@ -29,6 +34,17 @@ describe("resolveEventType", () => {
 	afterEach(teardown);
 
 	it("returns Absolute", () => {
+		expect(resolveEventType()).toBe(OrientationEventType.Absolute);
+	});
+
+	it("returns Standard when only ondeviceorientation is present", () => {
+		teardown();
+		setup({ absolute: false });
+		expect(resolveEventType()).toBe(OrientationEventType.Standard);
+	});
+
+	it("prefers Absolute when both properties are present", () => {
+		g.ondeviceorientation = null;
 		expect(resolveEventType()).toBe(OrientationEventType.Absolute);
 	});
 });

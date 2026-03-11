@@ -25,3 +25,30 @@ export class HeadingUnavailableError extends DeviceHeadingError {
 		super("Cannot determine compass heading: absolute alpha/beta/gamma not available");
 	}
 }
+
+/**
+ * Thrown when the user denies the permission request.
+ */
+export class PermissionDeniedError extends DeviceHeadingError {
+	constructor() {
+		super("Permission denied by user");
+	}
+}
+
+/**
+ * Thrown when the permission API returns an unrecognised state.
+ */
+export class UnknownPermissionStateError extends DeviceHeadingError {
+	constructor(state: string) {
+		super(`Unknown permission state: "${state}"`);
+	}
+}
+
+/**
+ * Thrown when the permission request fails unexpectedly.
+ */
+export class PermissionRequestFailedError extends DeviceHeadingError {
+	constructor() {
+		super("Failed to request iOS device orientation permission");
+	}
+}
