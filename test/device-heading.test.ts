@@ -41,6 +41,53 @@ describe("DeviceHeading", () => {
 				expect(result).toBe(Math.round(result * 10) / 10);
 			});
 		});
+
+		describe("start() / stop()", () => {
+			it("delivers each event to the callback", () => {
+				const compass = new DeviceHeading({ precision: 0 });
+				const received: number[] = [];
+				compass.start((h) => received.push(h));
+				emit(OrientationEventType.Absolute, makeEvent({ alpha: 180, beta: 180, gamma: 0 }));
+				emit(OrientationEventType.Absolute, makeEvent({ alpha: 360, beta: 360, gamma: 0 }));
+				expect(received).toEqual([180, 180]);
+			});
+
+			it("delivers rounded heading when precision is set", () => {
+				const compass = new DeviceHeading({ precision: 1 });
+				const received: number[] = [];
+				compass.start((h) => received.push(h));
+				emit(OrientationEventType.Absolute, makeEvent({ alpha: 180, beta: 180, gamma: 0 }));
+				const result = received[0];
+				expect(result).toBe(Math.round(result * 10) / 10);
+			});
+
+			it("start() is idempotent — registers only one listener", () => {
+				const compass = new DeviceHeading();
+				compass.start(() => {});
+				compass.start(() => {});
+				expect(listenerCount(OrientationEventType.Absolute)).toBe(1);
+			});
+
+			it("stop() removes the listener", () => {
+				const compass = new DeviceHeading();
+				compass.start(() => {});
+				compass.stop();
+				expect(listenerCount(OrientationEventType.Absolute)).toBe(0);
+			});
+
+			it("stop() is a no-op when not started", () => {
+				expect(() => new DeviceHeading().stop()).not.toThrow();
+			});
+
+			it("no events are delivered after stop()", () => {
+				const compass = new DeviceHeading();
+				const received: number[] = [];
+				compass.start((h) => received.push(h));
+				compass.stop();
+				emit(OrientationEventType.Absolute, makeEvent());
+				expect(received).toEqual([]);
+			});
+		});
 	});
 
 	describe("Unsupported", () => {
@@ -53,6 +100,12 @@ describe("DeviceHeading", () => {
 		describe("once()", () => {
 			it("throws when unsupported", () => {
 				expect(() => new DeviceHeading().once()).toThrow(UnsupportedEnvironmentError);
+			});
+		});
+
+		describe("start()", () => {
+			it("throws when unsupported", () => {
+				expect(() => new DeviceHeading().start(() => {})).toThrow(UnsupportedEnvironmentError);
 			});
 		});
 	});

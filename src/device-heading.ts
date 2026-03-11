@@ -22,6 +22,7 @@ export class DeviceHeading {
 	private readonly supported: boolean;
 	private readonly eventType: OrientationEventType;
 	private readonly precision: number | undefined;
+	private listener: ((event: DeviceOrientationEvent) => void) | null = null;
 
 	constructor(options: DeviceHeadingOptions = {}) {
 		this.supported = isOrientationSupported();
@@ -70,5 +71,47 @@ export class DeviceHeading {
 
 			globalThis.addEventListener(this.eventType, handler as EventListener, true);
 		});
+	}
+
+	/**
+	 * Starts continuous compass heading updates.
+	 *
+	 * @param callback - Called with heading in degrees (0–360°), rounded if `precision` is set
+	 * @throws {UnsupportedEnvironmentError} if the API is unavailable
+	 * @example
+	 * ```ts
+	 * import { DeviceHeading } from "device-heading"
+	 *
+	 * const compass = new DeviceHeading({ precision: 1 });
+	 * compass.start((heading) => console.log(heading));
+	 * ```
+	 */
+	start(callback: (heading: number) => void): void {
+		if (!this.supported) throw new UnsupportedEnvironmentError();
+		if (this.listener !== null) return;
+
+		this.listener = (event: DeviceOrientationEvent): void => {
+			callback(resolveHeading(event, this.precision));
+		};
+
+		globalThis.addEventListener(this.eventType, this.listener as EventListener, true);
+	}
+
+	/**
+	 * Stops continuous compass heading updates.
+	 *
+	 * @example
+	 * ```ts
+	 * import { DeviceHeading } from "device-heading"
+	 *
+	 * const compass = new DeviceHeading({ precision: 1 });
+	 * compass.stop();
+	 * ```
+	 */
+	stop(): void {
+		if (this.listener === null) return;
+
+		globalThis.removeEventListener(this.eventType, this.listener as EventListener, true);
+		this.listener = null;
 	}
 }
