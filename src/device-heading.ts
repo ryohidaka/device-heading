@@ -1,13 +1,32 @@
-import { isOrientationSupported } from "./utils";
+import {
+	isOrientationSupported,
+	OrientationEventType,
+	resolveEventType,
+	resolveHeading,
+	UnsupportedEnvironmentError,
+} from "./utils";
+
+export interface DeviceHeadingOptions {
+	/**
+	 * Number of decimal places to round heading values to.
+	 * If omitted, no rounding is applied.
+	 * @example precision: 1 → 180.5 / precision: 0 → 181
+	 */
+	precision?: number;
+}
 
 /**
  * Compass heading from the DeviceOrientationEvent API.
  */
 export class DeviceHeading {
 	private readonly supported: boolean;
+	private readonly eventType: OrientationEventType;
+	private readonly precision: number | undefined;
 
-	constructor() {
+	constructor(options: DeviceHeadingOptions = {}) {
 		this.supported = isOrientationSupported();
+		this.eventType = resolveEventType();
+		this.precision = options.precision;
 	}
 
 	/**
@@ -25,5 +44,31 @@ export class DeviceHeading {
 	 */
 	isSupported(): boolean {
 		return this.supported;
+	}
+
+	/**
+	 * Returns the next compass heading (0–360°) as a one-shot Promise.
+	 *
+	 * @returns Heading in degrees, rounded if `precision` is set
+	 * @throws {UnsupportedEnvironmentError} if the API is unavailable
+	 * @example
+	 * ```ts
+	 * import { DeviceHeading } from "device-heading"
+	 *
+	 * const compass = new DeviceHeading({ precision: 1 });
+	 * const heading = await compass.once();
+	 * ```
+	 */
+	once(): Promise<number> {
+		if (!this.supported) throw new UnsupportedEnvironmentError();
+
+		return new Promise((resolve) => {
+			const handler = (event: DeviceOrientationEvent): void => {
+				globalThis.removeEventListener(this.eventType, handler as EventListener, true);
+				resolve(resolveHeading(event, this.precision));
+			};
+
+			globalThis.addEventListener(this.eventType, handler as EventListener, true);
+		});
 	}
 }

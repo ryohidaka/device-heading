@@ -24,15 +24,46 @@ if (compass.isSupported()) {
 }
 ```
 
+### Get a single heading value
+
+```typescript
+import { DeviceHeading } from "device-heading";
+
+const compass = new DeviceHeading();
+
+const heading = await compass.once();
+console.log("Current heading:", heading);
+```
+
+### Round heading values
+
+```typescript
+import { DeviceHeading } from "device-heading";
+
+// Round to 1 decimal place (e.g., 180.5)
+const compass = new DeviceHeading({ precision: 1 });
+
+const heading = await compass.once();
+console.log("Current heading::", heading);
+```
+
 ## 🧠 API Reference
 
-### `new DeviceHeading()`
+### `new DeviceHeading(options?)`
 
 Creates a new compass instance.
+
+| Option      | Type     | Default     | Description                                                                    |
+| ----------- | -------- | ----------- | ------------------------------------------------------------------------------ |
+| `precision` | `number` | `undefined` | Decimal places to round heading values to. If omitted, no rounding is applied. |
 
 ### `isSupported(): boolean`
 
 Returns `true` if the current environment supports `DeviceOrientationEvent`.
+
+### `once(): Promise<number>`
+
+Returns the current heading once (in degrees, 0–360°).
 
 ## Contributing
 
