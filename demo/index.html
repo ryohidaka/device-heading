@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>DeviceHeading Demo</title>
+	</head>
+	<body>
+		<h1>DeviceHeading Demo</h1>
+
+		<section>
+			<h2>API Support</h2>
+			<p id="support"></p>
+		</section>
+
+		<section id="section-permission" hidden>
+			<h2>iOS Permission</h2>
+			<button id="btn-permission">Request Permission</button>
+			<p id="permission-status"></p>
+		</section>
+
+		<section>
+			<h2>Read Once</h2>
+			<button id="btn-once">Call once()</button>
+			<p>Heading: <span id="once-value">—</span></p>
+		</section>
+
+		<section>
+			<h2>Watch</h2>
+			<button id="btn-start">start()</button>
+			<button id="btn-stop" disabled>stop()</button>
+			<p>Heading: <span id="watch-value">—</span></p>
+		</section>
+
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
