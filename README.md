@@ -1,6 +1,11 @@
 # device-heading
 
-TypeScript library to get and track device heading
+[![NPM Version](https://img.shields.io/npm/v/device-heading?logo=npm)](https://www.npmjs.com/package/device-heading)
+[![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df?logo=bun&labelColor=212121)](https://bun.com)
+[![CI](https://github.com/ryohidaka/device-heading/actions/workflows/ci.yml/badge.svg)](https://github.com/ryohidaka/device-heading/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+TypeScript library to get and track device heading.
 
 > [!NOTE]
 > Requires HTTPS or localhost to access motion sensors.
@@ -11,10 +16,23 @@ TypeScript library to get and track device heading
 > Heading accuracy depends on the device's magnetometer and surrounding
 > environment.
 
-## Installation
+## ✨ Features
+
+- ✅ Simple API to get heading once or watch continuously
+- 📱 Works with iOS and Android (with built-in permission helper for iOS)
+- ⚡ Zero dependencies
+
+## Demo
+
+🔗 **Live Demo:** https://ryohidaka.github.io/device-heading/
+
+> [!TIP]
+> Access from a smartphone to see real-time compass heading updates as you move your device.
+
+## 📦 Installation
 
 ```bash
-bun add device-heading
+npm i device-heading
 ```
 
 ## 🚀 Usage
