@@ -65,6 +65,18 @@ setTimeout(() => {
 }, 5000);
 ```
 
+### Check iOS permission
+
+```typescript
+import { DeviceHeading } from "device-heading";
+
+const compass = new DeviceHeading();
+
+if (!(await compass.hasIOSPermission())) {
+	// show permission request UI
+}
+```
+
 ## 🧠 API Reference
 
 ### `new DeviceHeading(options?)`
@@ -90,6 +102,11 @@ Starts watching for heading updates. Calls `callback` with the latest heading on
 ### `stop(): void`
 
 Stops watching for heading updates.
+
+### `hasIOSPermission(): Promise<boolean>`
+
+Returns `true` if the `DeviceOrientationEvent` permission is granted on iOS 13+.
+On non-iOS devices, always returns `true`.
 
 ## Contributing
 

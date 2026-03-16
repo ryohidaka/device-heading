@@ -1,4 +1,5 @@
 import {
+	isIOSPermissionRequired,
 	isOrientationSupported,
 	OrientationEventType,
 	resolveEventType,
@@ -113,5 +114,37 @@ export class DeviceHeading {
 
 		globalThis.removeEventListener(this.eventType, this.listener as EventListener, true);
 		this.listener = null;
+	}
+
+	/**
+	 * Returns whether the DeviceOrientationEvent permission is granted on iOS 13+.
+	 * On non-iOS devices, always resolves to `true`.
+	 * Unlike {@link requestIOSPermission}, this does not prompt the user.
+	 *
+	 * @example
+	 * ```ts
+	 * import { DeviceHeading } from "device-heading"
+	 *
+	 * const compass = new DeviceHeading({ precision: 1 });
+	 *
+	 * if (!await compass.hasIOSPermission()) {
+	 *   // show permission request UI
+	 * }
+	 * ```
+	 */
+	async hasIOSPermission(): Promise<boolean> {
+		if (!this.supported) throw new UnsupportedEnvironmentError();
+		if (!isIOSPermissionRequired()) return true;
+
+		try {
+			const result = await (
+				DeviceOrientationEvent as unknown as {
+					requestPermission: () => Promise<string>;
+				}
+			).requestPermission();
+			return result === "granted";
+		} catch {
+			return false;
+		}
 	}
 }

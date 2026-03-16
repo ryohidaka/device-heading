@@ -1,7 +1,10 @@
-import { describe, it, expect, afterEach, beforeEach } from "bun:test";
+import { describe, it, expect, afterEach, beforeEach, mock } from "bun:test";
 import { DeviceHeading } from "../src";
 import { emit, listenerCount, makeEvent, setup, teardown } from "./globals";
 import { OrientationEventType, UnsupportedEnvironmentError } from "../src/utils";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const g = globalThis as any;
 
 describe("DeviceHeading", () => {
 	describe("Supported", () => {
@@ -88,6 +91,33 @@ describe("DeviceHeading", () => {
 				expect(received).toEqual([]);
 			});
 		});
+
+		describe("hasIOSPermission()", () => {
+			afterEach(() => {
+				delete (g.DeviceOrientationEvent as Record<string, unknown>).requestPermission;
+			});
+
+			it("returns true on non-iOS (requestPermission not present)", async () => {
+				expect(await new DeviceHeading().hasIOSPermission()).toBe(true);
+			});
+
+			it("returns true when iOS permission is granted", async () => {
+				g.DeviceOrientationEvent.requestPermission = mock(async () => "granted");
+				expect(await new DeviceHeading().hasIOSPermission()).toBe(true);
+			});
+
+			it("returns false when iOS permission is denied", async () => {
+				g.DeviceOrientationEvent.requestPermission = mock(async () => "denied");
+				expect(await new DeviceHeading().hasIOSPermission()).toBe(false);
+			});
+
+			it("returns false when requestPermission throws", async () => {
+				g.DeviceOrientationEvent.requestPermission = mock(async () => {
+					throw new Error("failed");
+				});
+				expect(await new DeviceHeading().hasIOSPermission()).toBe(false);
+			});
+		});
 	});
 
 	describe("Unsupported", () => {
@@ -106,6 +136,14 @@ describe("DeviceHeading", () => {
 		describe("start()", () => {
 			it("throws when unsupported", () => {
 				expect(() => new DeviceHeading().start(() => {})).toThrow(UnsupportedEnvironmentError);
+			});
+		});
+
+		describe("hasIOSPermission()", () => {
+			it("rejects when unsupported", async () => {
+				await expect(new DeviceHeading().hasIOSPermission()).rejects.toThrow(
+					UnsupportedEnvironmentError,
+				);
 			});
 		});
 	});
